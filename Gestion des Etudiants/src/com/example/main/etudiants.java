@@ -220,6 +220,8 @@ public class etudiants {
 		JButton btnNewButton = new JButton("Afficher");
 		btnNewButton.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
+				
+				
 								
 			}
 		});

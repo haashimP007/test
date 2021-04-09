@@ -11,9 +11,7 @@ public class MainXO {
 			@Override
 			public void run() {
 				
-				new TicTacToeGUI();
-				
-				
+				new TicTacToeGUI();				
 				
 			}
 			
