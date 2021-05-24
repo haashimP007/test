@@ -10,7 +10,13 @@ import java.awt.Font;
 import javax.swing.JTextField;
 import javax.swing.JButton;
 import java.awt.event.ActionListener;
+import java.sql.Connection;
+import java.sql.DriverManager;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.util.Scanner;
+import java.util.regex.Pattern;
 import java.awt.event.ActionEvent;
 import javax.swing.JMenuBar;
 import javax.swing.JMenu;
@@ -54,7 +60,29 @@ public class Courant {
 	 * Create the application.
 	 */
 	public Courant() {
+		Connect();
 		initialize();
+	}
+	
+	Connection con;
+	PreparedStatement pst;
+	ResultSet rs;
+	
+public void Connect() {
+		
+		try {
+            Class.forName("com.mysql.jdbc.Driver");
+            con = DriverManager.getConnection("jdbc:mysql://localhost/compte_bancaire", "root","");
+        }
+        catch (ClassNotFoundException ex) 
+        {
+          ex.printStackTrace();
+        }
+        catch (SQLException ex) 
+        {
+        	   ex.printStackTrace();
+        }
+		
 	}
 
 	/**
@@ -135,7 +163,96 @@ public class Courant {
 		btnOk.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				
-				JOptionPane.showMessageDialog(null, "Vos donnes sont bien entres");
+				String nom = txtNom.getText();
+				String prenom = txtPrenom.getText();
+				String adresse = txtAdresse.getText();
+				String dob = txtNaissance.getText();
+				String sex = txtSex.getText();
+				String num = txtNum.getText();
+				
+				try {
+					
+					final String NOM_REGEX = "^[A-Z]+(([',. -][a-zA-Z ])?[a-zA-Z]*)*$";
+					 
+				    final Pattern NOM_PATTERN = Pattern.compile(NOM_REGEX);
+				    
+				    final String PRENOM_REGEX = "^[A-Z]+(([',. -][a-zA-Z ])?[a-zA-Z]*)*$";
+					 
+				    final Pattern PRENOM_PATTERN = Pattern.compile(PRENOM_REGEX);
+				    
+				    final String ADRESSE_REGEX = "^[a-zA-Z]+(([',. -][a-zA-Z ])?[a-zA-Z][0-9]*)*$";
+					 
+				    final Pattern ADRESSE_PATTERN = Pattern.compile(ADRESSE_REGEX);
+				    
+				    /*final String DATE_REGEX = "^(?:(?:31(\\/|-|\\.)(?:0?[13578]|1[02]))\\1|(?:(?:29|30)(\\/|-|\\.)(?:0?[13-9]|1[0-2])\\2))(?:(?:1[6-9]|[2-9]\\d)?\\d{2})$|^(?:29(\\/|-|\\.)0?2\\3(?:(?:(?:1[6-9]|[2-9]\\d)?(?:0[48]|[2468][048]|[13579][26])|(?:(?:16|[2468][048]|[3579][26])00))))$|^(?:0?[1-9]|1\\d|2[0-8])(\\/|-|\\.)(?:(?:0?[1-9])|(?:1[0-2]))\\4(?:(?:1[6-9]|[2-9]\\d)?\\d{2})$";
+		    
+		            final Pattern DATE_PATTERN = Pattern.compile(DATE_REGEX);*/
+		    
+		            final String SEX_REGEX = "^[A-Z]+(([',. -][a-zA-Z ])?[a-zA-Z]*)*$";
+			 
+		            final Pattern SEX_PATTERN = Pattern.compile(SEX_REGEX);
+		            
+                    final String NUM_REGEX = "^[0-9]*$";
+				    
+				    final Pattern NUM_PATTERN = Pattern.compile(NUM_REGEX);
+				    
+				    if (NOM_PATTERN.matcher(nom).matches() == false) {
+				    	JOptionPane.showMessageDialog(null, "Le format du nom n'est pas bon,re-inserez son nom s'il vous plait");
+				    }
+				    
+				    if (PRENOM_PATTERN.matcher(prenom).matches() == false) {
+				    	JOptionPane.showMessageDialog(null, "Le format du prenom n'est pas bon,re-inserez son nom s'il vous plait");
+				    }
+				    
+				    if (ADRESSE_PATTERN.matcher(adresse).matches() == false) {
+				    	JOptionPane.showMessageDialog(null, "Le format de l'adresse n'est pas bon,re-inserez son nom s'il vous plait");
+				    }
+				    
+				    /*if (DATE_PATTERN.matcher(dob).matches() == false) {
+				    	JOptionPane.showMessageDialog(null, "Le format du date n'est pas bon,re-inserez son nom s'il vous plait");
+				    }*/
+				    
+				    if (SEX_PATTERN.matcher(sex).matches() == false) {
+				    	JOptionPane.showMessageDialog(null, "Le format du sex n'est pas bon,re-inserez son nom s'il vous plait");
+				    }
+				    
+				    if (NUM_PATTERN.matcher(num).matches() == false) {
+				    	JOptionPane.showMessageDialog(null, "Le format du numero n'est pas bon,re-inserez son nom s'il vous plait");
+				    }
+				    
+				    if (NOM_PATTERN.matcher(nom).matches()&&
+				              PRENOM_PATTERN.matcher(prenom).matches() &&
+				                ADRESSE_PATTERN.matcher(adresse).matches() &&
+				                /*DATE_PATTERN.matcher(dob).matches()&&*/
+				                SEX_PATTERN.matcher(sex).matches()&&
+				                NUM_PATTERN.matcher(num).matches()) {
+				    	
+				    	pst = con.prepareStatement("insert into courant(nom,prenom,adresse,dob,sex,numCompte)values(?,?,?,?,?,?)");
+						pst.setString(1, nom);
+						pst.setString(2, prenom);
+						pst.setString(3, adresse);
+						pst.setString(4, dob);
+						pst.setString(5, sex);
+						pst.setString(6, num);
+						pst.executeUpdate();
+						JOptionPane.showMessageDialog(null, "Record Added!!!!!");
+				    	
+				    }
+				    
+				    txtNom.setText("");
+				    txtPrenom.setText("");
+				    txtAdresse.setText("");
+				    txtNaissance.setText("");
+				    txtSex.setText("");
+				    txtNum.setText("");
+
+					
+				}
+				catch (SQLException e1) {
+
+                    e1.printStackTrace();
+
+      }
 			}
 		});
 		btnOk.setFont(new Font("Arial", Font.BOLD, 16));
